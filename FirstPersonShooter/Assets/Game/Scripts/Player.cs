@@ -88,6 +88,7 @@ public class Player : MonoBehaviour
             _weaponAudio.Play();
         }
 
+        
         Ray rayorigin = Camera.main.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0));
 
         RaycastHit hitInfo;
@@ -96,6 +97,13 @@ public class Player : MonoBehaviour
             Debug.Log("hit something" + hitInfo.transform.name);
             GameObject hitMarker = Instantiate(_hitMarker_prefab, hitInfo.point, Quaternion.LookRotation(hitInfo.normal)) as GameObject;
             Destroy(hitMarker, 1f);
+        }
+
+        //check if we hit the crate
+        Destructable crate = hitInfo.transform.GetComponent<Destructable>();
+        if( crate != null)
+        {
+            crate.Destroycrate();
         }
     }
 
