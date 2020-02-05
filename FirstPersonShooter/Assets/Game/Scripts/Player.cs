@@ -8,10 +8,19 @@ public class Player : MonoBehaviour
     [SerializeField] private float _speed = 3.5f;
     [SerializeField] private float _gravity = 9.81f;
     [SerializeField] private GameObject _Muzzel_prefab;
-    [SerializeField] private GameObject _Muzzelprefab;
-    [SerializeField] private GameObject _hitMarkerprefab;
+   [SerializeField] private GameObject _Muzzelprefab;
+    [SerializeField] private GameObject _hitMarker_prefab;
     ParticleSystem laser;
     ParticleSystem laserstreak;
+    [SerializeField] private AudioSource _weaponAudio;
+
+    [SerializeField]
+    private int _currentAmmo;
+    private int _maxAmmo = 50;
+    private bool _isreloading = false;
+
+    private UIManager _uiManager;
+    public int coins = 0;
 
 
     // Start is called before the first frame update
@@ -21,7 +30,12 @@ public class Player : MonoBehaviour
         Cursor.visible = false;
         Cursor.lockState = CursorLockMode.Locked;
         laser = _Muzzel_prefab.GetComponent<ParticleSystem>();
-        laserstreak = _Muzzelprefab.GetComponent<ParticleSystem>();
+       laserstreak = _Muzzelprefab.GetComponent<ParticleSystem>();
+
+        _currentAmmo = _maxAmmo;
+
+        _uiManager = GameObject.Find("Canvas").GetComponent<UIManager>();
+        _uiManager.UpdateAmmo(_currentAmmo);
     }
 
     // Update is called once per frame
@@ -35,19 +49,15 @@ public class Player : MonoBehaviour
             Cursor.lockState = CursorLockMode.None;
         }
 
-        if (Input.GetMouseButton(0))
+        if(Input.GetKeyDown(KeyCode.R) && _isreloading == false)
         {
-            _Muzzel_prefab.SetActive(true);
-            laser.Emit(1);
-            laserstreak.Emit(1); 
-            Ray rayorigin = Camera.main.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0));
+            _isreloading = true;
+            StartCoroutine(Reload());
+        }
 
-            RaycastHit hitInfo;
-            if (Physics.Raycast(rayorigin, out hitInfo))
-            {
-                Debug.Log("hit something" + hitInfo.transform.name);
-                Instantiate(_hitMarkerprefab, hitInfo.point, Quaternion.LookRotation(hitInfo.normal);
-            }
+        if (Input.GetMouseButton(0) && _currentAmmo > 0)
+        {
+            Shoot();
         }
 
         else
@@ -55,10 +65,36 @@ public class Player : MonoBehaviour
             _Muzzel_prefab.SetActive(false);
             laser.Stop();
             laserstreak.Stop();
+            _weaponAudio.Stop();
         }
 
    
 
+    }
+
+    void Shoot()
+    {
+        _Muzzel_prefab.SetActive(true);
+        laser.Emit(1);
+        laserstreak.Emit(1);
+
+        _currentAmmo--;
+        _uiManager.UpdateAmmo(_currentAmmo);
+
+        if (_weaponAudio.isPlaying == false)
+        {
+            _weaponAudio.Play();
+        }
+
+        Ray rayorigin = Camera.main.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0));
+
+        RaycastHit hitInfo;
+        if (Physics.Raycast(rayorigin, out hitInfo))
+        {
+            Debug.Log("hit something" + hitInfo.transform.name);
+            GameObject hitMarker = Instantiate(_hitMarker_prefab, hitInfo.point, Quaternion.LookRotation(hitInfo.normal)) as GameObject;
+            Destroy(hitMarker, 1f);
+        }
     }
 
     void Movement()
@@ -70,5 +106,14 @@ public class Player : MonoBehaviour
         velocity.y -= _gravity;
         velocity = transform.transform.TransformDirection(velocity);
         _controller.Move(velocity * Time.deltaTime);
+    }
+
+    IEnumerator Reload()
+    {
+        yield return new WaitForSeconds(1.5f);
+        _currentAmmo = _maxAmmo;
+        _uiManager.UpdateAmmo(_currentAmmo);
+        _isreloading = false;
+
     }
 }
