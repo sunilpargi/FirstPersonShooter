@@ -20,7 +20,9 @@ public class Player : MonoBehaviour
     private bool _isreloading = false;
 
     private UIManager _uiManager;
-    public int coins = 0;
+    public bool hasCoin = false;
+
+    [SerializeField] private GameObject _weapon;
 
 
     // Start is called before the first frame update
@@ -115,5 +117,10 @@ public class Player : MonoBehaviour
         _uiManager.UpdateAmmo(_currentAmmo);
         _isreloading = false;
 
+    }
+
+    public void EnableWeapon()
+    {
+        _weapon.SetActive(true);
     }
 }
