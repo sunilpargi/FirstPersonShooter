@@ -111,7 +111,7 @@ public class Player : MonoBehaviour
     {
         float horizontalInput = Input.GetAxis("Horizontal");
         float verticalInput = Input.GetAxis("Vertical");
-        Vector3 direction = new Vector3(-horizontalInput, 0, -verticalInput);
+        Vector3 direction = new Vector3(horizontalInput, 0, verticalInput);
         Vector3 velocity = direction * _speed;
         velocity.y -= _gravity;
         velocity = transform.transform.TransformDirection(velocity);
