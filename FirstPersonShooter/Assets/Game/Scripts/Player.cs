@@ -94,7 +94,7 @@ public class Player : MonoBehaviour
         RaycastHit hitInfo;
         if (Physics.Raycast(rayorigin, out hitInfo))
         {
-            Debug.Log("hit something" + hitInfo.transform.name);
+           // Debug.Log("hit something" + hitInfo.transform.name);
             GameObject hitMarker = Instantiate(_hitMarker_prefab, hitInfo.point, Quaternion.LookRotation(hitInfo.normal)) as GameObject;
             Destroy(hitMarker, 1f);
         }
